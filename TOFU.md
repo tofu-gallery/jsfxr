@@ -50,9 +50,29 @@ Playwright needs its Chromium download (`npx playwright install chromium`) befor
 
 ## Verification
 
-Verified locally on 2026-10-23 with Node.js 22.22.3, npm 10.9.8, and Python 3.11.4. No app was deployed.
+No app was deployed. This revision was checked on 2026-10-23 (UTC) as described first; the checks of the earlier pin follow.
 
-The unit suite and the first browser flow below ran on the previous pin, `pin/2026-10-23` (revision `d6b0643`), which still had the npm manifests. The files they exercise (`sfxr.js`, `riffwave.js`, `tests.js`) are unchanged in this revision.
+### This revision (without the npm and Playwright files)
+
+Tofu's own import checks, run on the pushed `tofu` branch the way the GitHub import reads it:
+
+- Free hosting's file rules accept the tree as a finished static site: 17 files, 12 of them published, and the other 5 (`.gitignore`, `.hgignore`, `CNAME`, `README.md`, `TOFU.md`) kept as repository files and never served. The entry page is `index.html`.
+- Tofu's safety check reports no findings.
+- The import keeps all 17 files and drops none.
+
+A real-browser flow with the gstack `/browse` skill and Aside, against `127.0.0.1` only, on a copy of the tree with the import's dropped folders removed, served by `python3 -m http.server` (Python 3.11.4):
+
+- The page loaded `riffwave.js`, `sfxr.js`, `logo.svg` and `icon.png`, all with HTTP 200, and requested nothing from another origin.
+- Clicking Pickup/coin produced a `pickupCoin.wav` whose header reads RIFF/WAVE, mono, 44,100 Hz, 8 bit, and which the browser decoded (0.287 s). All 11 generators produced a nonempty WAV.
+- Choosing 8k and 16 bit produced a WAV with an 8,000 Hz, 16-bit header, which the browser also decoded.
+- Serialize produced valid JSON with 27 parameters; after the JSON was edited to a sine wave, Deserialize switched the page to Sine.
+- The permalink reloaded in a fresh page load with the same wave type, sample rate and sample size, and the short URL from the README loaded cleanly.
+- The footer licence link (the `¢`) opened `UNLICENSE.txt` as plain text showing the Unlicense, and the removed files are no longer served.
+- Console errors were `[]`, console warnings were `[]`, and requests to other origins were `[]`. The test script cut the connection to the speakers, so audible output was not listened to.
+
+### Earlier pin, `pin/2026-10-23` (revision `d6b0643`)
+
+Verified locally on 2026-10-23 with Node.js 22.22.3, npm 10.9.8, and Python 3.11.4, while the npm manifests were still present. No app was deployed. The unit suite exercises `sfxr.js` and `tests.js`, and the browser flow below exercised `sfxr.js` and `riffwave.js`; those files are unchanged in this revision.
 
 Dependency preparation and the upstream unit suite:
 
